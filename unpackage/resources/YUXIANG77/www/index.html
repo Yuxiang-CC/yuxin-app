@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+	<!-- 使页面适应客户端 -->
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title></title>
+    <script src="js/mui.js"></script>
+    <link href="css/mui.min.css" rel="stylesheet"/>
+	<link href="css/header.css" rel="stylesheet" />
+	<link href="font_ico/iconfont.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf-8">
+      	
+		
+		/* // 当页面加载完成之后	--H5+的API
+		mui.plusReady(function() {
+			
+			
+		}) */
+    </script>
+</head>
+<body>
+	<!-- 头部部分 -->
+	<header class="mui-bar mui-bar-nav title">
+		<a class="mui-action-back"></a>
+		<h1 id="yuxin-title" class="mui-title title-color">雨巷</h1>
+	</header>
+	
+	
+	
+	<!-- 底部选项卡 -->
+	<nav class="mui-bar mui-bar-tab">
+		<a class="mui-tab-item mui-active" tabindex="0">
+			<i class="mui-icon iconfont icon-xiaoxi"></i>
+			<span class="mui-tab-label">消息</span>
+		</a>
+		<a class="mui-tab-item" tabindex="1">
+			<span class="mui-icon iconfont icon-tongxunlu"></span>
+			<span class="mui-tab-label">通讯录</span>
+		</a>
+		<a class="mui-tab-item" tabindex="2">
+			<span class="mui-icon iconfont icon-faxian"></span>
+			<span class="mui-tab-label">发现</span>
+		</a>
+		<a class="mui-tab-item" tabindex="3">
+			<span class="mui-icon iconfont icon-wode"></span>
+			<span class="mui-tab-label">我的</span>
+		</a>
+	</nav>
+	
+	<script type="text/javascript">
+		
+		mui.init();
+		var yuxiangArray = [
+			{
+				pageId: "yuxiang_chatlist.html",
+				pageUrl: "yuxiang_chatlist.html"
+			},
+			{
+				pageId: "yuxiang_contact.html",
+				pageUrl: "yuxiang_contact.html"
+			},
+			{
+				pageId: "yuxiang_discover.html",
+				pageUrl: "yuxiang_discover.html"
+			},
+			{
+				pageId: "yuxiang_me.html",
+				pageUrl: "yuxiang_me.html"
+			},
+		]
+		
+		var yuxiangStyle = {
+			top: "44px",
+			bottom: "50px"
+		}
+		
+		mui.plusReady(function () {
+			
+			plus.navigator.setStatusBarStyle("light")
+			plus.navigator.setStatusBarBackground("#35d4e6")
+			
+			// 在首页禁止返回到登录注册页面
+			mui.back = function() {
+				return false
+			}
+			
+			// 对网络连接进行事件监听
+			netChangeSwitch()
+			
+		    // 获取当前首页的WebView
+			var indexWebView = plus.webview.currentWebview()
+			
+			// 向当前的主页WebView追加子页的WebView
+			for (var i = 0;i < yuxiangArray.length; i++) {
+				var pages = plus.webview.create(yuxiangArray[i].pageUrl, yuxiangArray[i].pageId,
+													yuxiangStyle)	// 子页面样式
+				// 隐藏webview窗口
+				pages.hide()
+				// 追加每一个子页面到当前页面
+				indexWebView.append(pages)
+			}
+			plus.webview.show(yuxiangArray[0].pageId)
+			// plus.webview.getWebviewById(yuxiangArray[0].pageId).reload();
+			
+			// 批量绑定tap事件，展示不同的页面
+			mui(".mui-bar-tab").on("tap", "a", function() {
+				// 获取点击的tabIndex值
+				var tabindex = this.getAttribute("tabindex")
+				
+				// 显示点击的tab选项所对应的页面
+				plus.webview.show(yuxiangArray[tabindex].pageId, "fade-in", 200)
+				
+				// 其他页面隐藏
+				for (var i = 0; i < yuxiangArray.length; i++) {
+					if (i != tabindex) {
+						plus.webview.hide(yuxiangArray[i].pageId, "fade-out", 200)
+					}
+				}
+			})
+			
+			setTimeout("initData()", 1000)
+			
+		})
+		// 监听网络状态更改
+		function netChangeSwitch() {
+			document.addEventListener("netchange", function() {
+				// 判读网络状态
+				var connectionStatus = plus.networkinfo.getCurrentType()
+				if (connectionStatus != 0 && connectionStatus != 1) {
+					// 重新打开网络连接
+					var yuxin_title = document.getElementById("yuxin-title")
+					yuxin_title.innerHTML = "<b>雨信</b>"
+				} else {
+					// 关闭网络连接
+					var yuxin_title = document.getElementById("yuxin-title")
+					yuxin_title.innerHTML = "<b>雨信(未连接)</b>"
+				}
+			})
+		}
+		// 预加载
+		function initData() {
+			var yuxiang_chatlist = plus.webview.getWebviewById("yuxiang_chatlist.html")
+			console.log("预加载。。。。")
+			mui.fire(yuxiang_chatlist, "refresh")
+			var yuxiang_me = plus.webview.getWebviewById("yuxiang_me.html")
+			mui.fire(yuxiang_me, "refresh")
+		}
+		
+	</script>
+	
+</body>
+</html>
